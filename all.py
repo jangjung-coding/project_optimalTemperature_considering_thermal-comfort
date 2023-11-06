@@ -152,6 +152,7 @@ df.columns.nunique() #32
 for i in df["ID"].unique():
     subject = df[df["ID"]==i]
     subject.to_csv("subject"+str(i)+".csv")
+    
 ##3-6. 여기부터는 개별 subject.py에서 진행(이상치, 결측치 처리, 모델링, 성능평가, 적용)
 ##subject별 결측치와 이상치가 다를것이므로 데이터를 최대한 살리기 위해 각각의 subject.py에서 처리
 ##모델링은 3명의 차이가 크고 데이터가 많은 subject를 대상으로 진행 후 나머지 subject에 적용
