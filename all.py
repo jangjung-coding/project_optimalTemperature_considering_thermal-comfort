@@ -22,7 +22,7 @@ df[df["location"]==-1] #546 outdoor data
 df = df[df["location"]==1]
 df = df.drop(columns=['location'])
 
-##3-2. 스마트 워치로 구하기 어려운 피쳐 제거(AnkleT. 밝목온도는 스마트 워치로 측정하기 어려움)
+##3-2. 스마트 워치로 구하기 어려운 피쳐 제거(AnkleT. 발목온도는 스마트 워치로 측정하기 어려움)
 df.columns.nunique() #81
 columns_to_drop = ['mean.AnkleT_5', 'grad.AnkleT_5', 'sd.AnkleT_5', 'mean.AnkleT_15', 'grad.AnkleT_15', 'sd.AnkleT_15', 'mean.AnkleT_60', 'grad.AnkleT_60', 'sd.AnkleT_60']
 df = df.drop(columns=columns_to_drop)
@@ -127,12 +127,21 @@ df.columns.nunique() #33
 ##3-4. 'therm_sens'와 'therm_pref'는 비슷한 의미로 모두 thermal comfort를 나타내는 변수이므로 7가지로 보다 자세한 지표인 'therm_sens'만 사용하기로 결정
 df = df.drop(columns=['therm_pref'])
 df.columns.nunique() #32
+
+##3-5. 'Coffeeintake', 'Workhr'제거
+df['Coffeeintake'].corr(df['therm_sens']) #0.07
+plt.plot(df[df['ID']==0]['Coffeeintake']) #2주 동안 개인별 커피 섭취량은 일정함
+df['Workhr'].corr(df['therm_sens']) #0.13
+plt.plot(df[df['ID']==7]['Workhr']) #2주 동안 개인별 운동시간은 일정했고 계속해서 변하는 thermal_sens를 구하는데 있어 고정적인 특성의 운동 시간은 관계가 없다고 판단
+## -> 'Coffeeintake'와 'therm_sens'의 상관관계는 0.07로 매우 낮다. 또한 정확한 섭취 시간을 알 수 없어 차원의 저주를 고려해 제거하기로 결정
+## -> 'Workhr'와 'therm_sens'의 상관관계는 0.13으로 매우 낮다. 또한 정확한 운동 시간을 알 수 없어 차원의 저주를 고려해 제거하기로 결정
+df = df.drop(columns=['Coffeeintake', 'Workhr'])
+df.columns.nunique() #30
+
 '''
-지금까지 남은 32개의 피쳐는 다음과 같다.
+지금까지 남은 30개의 피쳐는 다음과 같다.
 - Antropometric features(인체 측정 변수)
         'Sex', 'Age', 'Height', 'Weight'
-- Behavioral features(행동 변수)
-        'Workhr', 'Coffeeintake'
 - Physiological features(생리학적 변수)
         'mean.hr_60', 'grad.hr_60', 'sd.hr_60', 
         'mean.WristT_60', 'grad.WristT_60', 'sd.WristT_60', 
@@ -148,14 +157,13 @@ df.columns.nunique() #32
         'ID', 'ColdSens', 'ColdExp', 'Vote_time'
 '''
 
-##3-5. 데이터 개인별로 나누기(14명)
+##3-6. 데이터 개인별로 나누기(14명)
 for i in df["ID"].unique():
     subject = df[df["ID"]==i]
     subject.to_csv("subject"+str(i)+".csv")
     
 ##3-6. 여기부터는 개별 subject.py에서 진행(이상치, 결측치 처리, 모델링, 성능평가, 적용)
 ##subject별 결측치와 이상치가 다를것이므로 데이터를 최대한 살리기 위해 각각의 subject.py에서 처리
-##모델링은 3명의 차이가 크고 데이터가 많은 subject를 대상으로 진행 후 나머지 subject에 적용
 #######################################################################
 
 ### 두 피쳐간 상관도를 보는 코드(숫자 + 그림)
