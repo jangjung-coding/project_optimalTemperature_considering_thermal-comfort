@@ -11,6 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.impute import KNNImputer
+from scipy import stats
 
 path = 'subject1.csv' #subject.csv에 맞게 바꾸기 !!!
 df = pd.read_csv(path)
@@ -98,13 +99,22 @@ print(df.columns[df.isnull().any()].tolist()) #결측치 없음!!!
 
 ## 이상치 확인
 df.describe()
-## 이상치 시각화
 df.boxplot(rot=90, figsize=(10,10))
-df.hist(color='pink', figsize=(10,10))
-sns.kdeplot(df['mean.Temperature_60'], color='pink')
+## 환경변수('Temperature', 'Humidity', 'Winvel', 'Solar')에 대한 이상치 확인 -> 외부 데이터(기상청)를 가져온 것이므로 이상치 제거하지 않기로 결정
+environmental_features_include_solar = ['mean.Temperature_60', 'grad.Temperature_60', 'sd.Temperature_60', 'mean.Humidity_60', 'grad.Humidity_60', 'sd.Humidity_60', 'mean.Winvel_60', 'grad.Winvel_60', 'sd.Winvel_60', 'mean.Solar_60', 'grad.Solar_60', 'sd.Solar_60']
+plt.boxplot(df[environmental_features_include_solar]) # 'Solar'에서 이상치가 많이 발견됨. 이는 subject1 측정 계절이  12월, 즉 겨울 샌프란시스코 일간 온도차가 크기 때문으로 판단
+## 생리학적 변수 'hr', 'WristT', 'PantT'에 대한 이상치는 순간적인 변화에 의해 생기는 값이므로 개인 therml_sens를 찾는 회귀, 분류 모델이 영향을 많이 줄 것이므로 평균값으로 대체하기로 결정
+physiological_features = ['mean.hr_60', 'grad.hr_60', 'sd.hr_60', 'mean.WristT_60', 'grad.WristT_60', 'sd.WristT_60', 'mean.PantT_60', 'grad.PantT_60', 'sd.PantT_60']
+df[physiological_features].boxplot(rot=90, figsize=(10,10))
+## Z-score로 이상치 찾고 평균값으로 대체
+z = np.abs(stats.zscore(df[physiological_features]))
+print(np.where(z > 3)) # 표준정규분포에서 약 99.7%의 데이터가 평균에서 ±3 표준편차 범위에 위치하는 outlier를 이상치로 판단
+df[physiological_features] = df[physiological_features][(z < 3).all(axis=1)] #이상치 제거
+df[physiological_features] = df[physiological_features].fillna(df[physiological_features].mean()) #이상치 제거 후 결측치 처리
+## 이상치 최종 확인
+df[physiological_features].boxplot(rot=90, figsize=(10,10)) #이상치 처리 끝!!!
 
-
-##3-8. 피쳐 엔지니어링(단위와 타입 조정)
+##3-8. 피쳐 엔지니어링(단위와 타입 조정) -> Z-score sclaing, PCM
 ##3-9. 피쳐 스케일링
 ##3-10. 데이터 전처리 및 분석 마무리
 
