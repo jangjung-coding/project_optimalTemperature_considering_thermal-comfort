@@ -67,7 +67,7 @@ environmental_features = ['mean.Temperature_60', 'grad.Temperature_60', 'sd.Temp
 df[environmental_features] = df[environmental_features].fillna(df[environmental_features].mean())
 
 ## -> 'Solar'는 시간에 영향을 매우 많이 받기에 'Vote_time'에 맞춰서 결측치 처리
-## sting 타입의 'Vote_time' 열을 분 단위로 계산하여 int64 타입으로 'Vote_time_as_number' 열에 추가. 2주라 짧은 시간이므로 일 단위는 무시
+## string 타입의 'Vote_time' 열을 분 단위로 계산하여 int64 타입으로 'Vote_time_as_number' 열에 추가. 2주라 짧은 시간이므로 일 단위는 무시
 ## 예를 들어, 하루를 1440이라고 보면 오전 9시는 540, 15시(오후3시)는 900이 된다
 df['Vote_time_as_number'] = pd.to_datetime(df['Vote_time'], format='%m/%d/%Y %H:%M').dt.hour * 60 + pd.to_datetime(df['Vote_time'], format='%m/%d/%Y %H:%M').dt.minute
 plt.scatter(x=df[ 'Vote_time_as_number'], y=df['mean.Solar_60'], alpha=0.7) #그림을 보면 600~1000 즉, 10시~17시 해가 떠있을때 Solar가 큰것을 볼 수 있음 
@@ -86,12 +86,12 @@ df[physiological_features] = df[physiological_features].fillna(df[physiological_
 ## missing_values가 있는지 확인
 print(df.columns[df.isnull().any()].tolist())
 '''
-mean.WristT_60    1
-grad.WristT_60    1
-sd.WristT_60      1
-mean.PantT_60     1
-grad.PantT_60     1
-sd.PantT_60       1
+'mean.WristT_60',
+'grad.WristT_60',
+'sd.WristT_60',
+'mean.PantT_60',
+'grad.PantT_60',
+'sd.PantT_60'
 '''
 df[physiological_features] = df[physiological_features].fillna(df[physiological_features].rolling(window=11, min_periods=1, center=True).mean()) #다시 한번 결측치 처리
 ## 결측치 최종 확인
