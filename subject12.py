@@ -85,9 +85,9 @@ print(df.columns[df.isnull().any()].tolist())
 'grad.hr_60', 
 'sd.hr_60'
 '''
-df[physiological_features] = df[physiological_features].fillna(df[physiological_features].rolling(window=41, min_periods=1, center=True).mean()) #다시 한번 결측치 처리
-df[physiological_features] = df[physiological_features].fillna(df[physiological_features].rolling(window=41, min_periods=1, center=True).mean()) #다시 한번 결측치 처리
-df[physiological_features] = df[physiological_features].fillna(df[physiological_features].rolling(window=41, min_periods=1, center=True).mean()) #다시 한번 결측치 처리
+df[physiological_features] = df[physiological_features].fillna(df[physiological_features].rolling(window=11, min_periods=1, center=True).mean()) #다시 한번 결측치 처리
+df[physiological_features] = df[physiological_features].fillna(df[physiological_features].rolling(window=11, min_periods=1, center=True).mean()) #다시 한번 결측치 처리
+df[physiological_features] = df[physiological_features].fillna(df[physiological_features].rolling(window=11, min_periods=1, center=True).mean()) #다시 한번 결측치 처리
 print(df.columns[df.isnull().any()].tolist()) #결측치가 계속 나옴
 df[['mean.hr_60', 'grad.hr_60', 'sd.hr_60']].isnull().sum()
 '''
