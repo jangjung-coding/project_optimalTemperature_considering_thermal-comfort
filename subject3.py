@@ -111,7 +111,7 @@ physiological_features = ['mean.hr_60', 'grad.hr_60', 'sd.hr_60', 'mean.WristT_6
 df[physiological_features].boxplot(rot=90, figsize=(10,10))
 ## Z-score로 이상치 찾고 평균값으로 대체
 z = np.abs(stats.zscore(df[physiological_features]))
-print(np.where(z > 2)) # 표준정규분포에서 약 97.7%의 데이터가 평균에서 ±2 표준편차 범위에 위치하는 outlier를 이상치로 판단. subject1과 보다 데이터도, 이상치도 많아서 더 많은 이상치를 평균으로 처리하기 위해 z-socre를 2로 했음
+print(np.where(z > 2)) # 표준정규분포에서 약 97.7%의 데이터가 평균에서 ±2 표준편차 범위에 위치하는 outlier를 이상치로 판단. subject1,2와 비교해 이상치의 폭이 더 커서 z-socre를 2로 설정
 df[physiological_features] = df[physiological_features][(z < 2).all(axis=1)] #이상치 제거
 df[physiological_features] = df[physiological_features].fillna(df[physiological_features].mean()) #이상치 제거 후 결측치 처리
 ## 이상치 최종 확인
