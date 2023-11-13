@@ -130,7 +130,6 @@ df.columns.nunique() #32
 
 ##3-5. 'Coffeeintake', 'Workhr'제거
 df['Coffeeintake'].corr(df['therm_sens']) #0.07
-plt.plot(df[df['ID']==0]['Coffeeintake']) #2주 동안 개인별 커피 섭취량은 일정함
 df['Workhr'].corr(df['therm_sens']) #0.13
 plt.plot(df[df['ID']==7]['Workhr']) #2주 동안 개인별 운동시간은 일정했고 계속해서 변하는 thermal_sens를 구하는데 있어 고정적인 특성의 운동 시간은 관계가 없다고 판단
 ## -> 'Coffeeintake'와 'therm_sens'의 상관관계는 0.07로 매우 낮다. 또한 정확한 섭취 시간을 알 수 없어 차원의 저주를 고려해 제거하기로 결정
@@ -156,6 +155,20 @@ df.columns.nunique() #30
 - Other features(기타 변수)
         'ID', 'ColdSens', 'ColdExp', 'Vote_time'
 '''
+plt.scatter(df['Sex'], df['therm_sens'])
+plt.scatter(df['Age'], df['therm_sens'])
+plt.scatter(df['Height'], df['therm_sens'])
+plt.scatter(df['Weight'], df['therm_sens'])
+## -> Antropometric features(인체 측정 변수)는 단기간인 2주 동안 변하지 않고 'therma_sens'를 예측하는데 높은 상관성을 보이지 않지만 개인 특성을 가장 잘 나타내는 피쳐이므로 일단 남겨두기로 결정
+df = df.drop(columns=['Sex', 'Age', 'Height', 'Weight'])
+
+plt.plot(df['ColdSens'])
+plt.plot(df['ColdExp'])
+plt.scatter(df['ColdSens'], df['ColdExp'], alpha=0.7)
+## -> 'ColdSens'와 'ColdExp'는 비슷한 의미로 모두 개인의 추위에 대한 민감도를 나타내는 변수이다. 하지만 논문에 따라 개인 열 쾌적성을 잘 나타내지 못했고 변하지 않는 값이라는 특성으로 모델에 영향을 줄 수 없으므로 제거
+df = df.drop(columns=['ColdSens', 'ColdExp'])
+
+df.columns.nunique() #24
 
 ##3-6. 데이터 개인별로 나누기(14명)
 for i in df["ID"].unique():
@@ -176,9 +189,7 @@ sns.set(font_scale=1.1)# 폰트사이즈 조절
 sns.set_style('whitegrid')# 스타일 설정
 data = df[[ # 데이터 선택
     'ColdSens', 'ColdExp',
-    'mean.hr_60', 
-    'mean.WristT_60',
-    'mean.PantT_60']]
+    'therm_sens']]
 sns.pairplot(data, diag_kind='kde', markers='o', plot_kws={'alpha':0.4})# Pairplot 생성
 plt.suptitle("Pairplot of Weather Variables", y=1.02)# 그래프 제목 추가
 plt.show()
