@@ -101,7 +101,6 @@ df[physiological_features] = df[physiological_features].fillna(df[physiological_
 print(df.columns[df.isnull().any()].tolist()) #결측치 없음!!!
 
 ## 이상치 확인
-## 공간이동에 따른 순간적인 환경변화, 운동, 식사 등에 따른 생리학적 변수의 변화로 인한 이상치가 발생할 수 있고 이런것들도 모델에 학습시키기 위해 이상치를 제거를 최소화 하기로 결정
 df.describe()
 df.boxplot(rot=90, figsize=(10,10))
 ## 환경변수('Temperature', 'Humidity', 'Winvel', 'Solar')에 대한 이상치 확인 -> 외부 데이터(기상청)를 가져온 것이므로 이상치 제거하지 않기로 결정
@@ -118,19 +117,8 @@ df[physiological_features] = df[physiological_features].fillna(df[physiological_
 ## 이상치 최종 확인
 df[physiological_features].boxplot(rot=90, figsize=(10,10)) #이상치 처리 끝!!!
 
-##3-8. 피쳐 스케일링(RobustScaler)
-## RobustScaler를 사용하면 모든 변수들이 같은 스케일을 갖게 되며, StandardScaler에 비해 스케일링 결과가 더 넓은 범위로 분포하게 됨
-## 따라서 StandardScaler에 비해 이상치의 영향이 적어진다는 장점이 있는데 이는 모델의 과대적합을 방지하고 이상치 제거를 최소화한 앞선 작업과도 연결됨(줄102에서 이상치 제거를 최소화 했어서 RobustScaler를 사용하기로 결정)
-from sklearn.preprocessing import RobustScaler
-scaler = RobustScaler()
-df[environmental_features_include_solar] = scaler.fit_transform(df[environmental_features_include_solar]) #환경변수 스케일링
-df[physiological_features] = scaler.fit_transform(df[physiological_features]) #생리학적 변수 스케일링
-## 스케일링 확인
-df[environmental_features_include_solar].describe()
-df[environmental_features_include_solar].boxplot(rot=90, figsize=(10,10))
-df[physiological_features].describe()
-df[physiological_features].boxplot(rot=90, figsize=(10,10))
-## -> 차원축소를 위해 minmaxscaler로 데이터 스케일링
+##3-8. 피쳐 스케일링
+## 차원축소를 위해 minmaxscaler로 데이터 스케일링
 from sklearn.preprocessing import MinMaxScaler
 scaler = MinMaxScaler()
 df[environmental_features_include_solar] = scaler.fit_transform(df[environmental_features_include_solar]) #환경변수 0~1 스케일링
@@ -138,9 +126,26 @@ df[physiological_features] = scaler.fit_transform(df[physiological_features]) #�
 ## 스케일링 확인
 df[environmental_features_include_solar].describe()
 df[environmental_features_include_solar].boxplot(rot=90, figsize=(10,10))
+## 스케일링 된 환경변수의 시각화로 분포 확인
+for feature in environmental_features_include_solar:
+    sns.kdeplot(df[feature], label=feature, fill=True, linewidth=2)
+plt.title('Distribution of Scaled Environmental Features')
+plt.xlabel('Scaled Value')
+plt.ylabel('Density')
+plt.legend(fontsize='small')
+plt.show()
+
 df[physiological_features].describe()
 df[physiological_features].boxplot(rot=90, figsize=(10,10))
-## Other features(기타 변수) 4개('ID','Vote_time', 'Vote_time_as_number')는 스케일링 하지 않음
+## 스케일링 된 생리학적 변수의 시각화로 분포 확인
+for feature in physiological_features:
+    sns.kdeplot(df[feature], label=feature, fill=True, linewidth=2)
+plt.title('Distribution of Scaled Environmental Features')
+plt.xlabel('Scaled Value')
+plt.ylabel('Density')
+plt.legend(fontsize='small')
+plt.show()
+## Other features(기타 변수) 3개('ID','Vote_time', 'Vote_time_as_number')는 스케일링 하지 않음
 ## 'therm_sens'는 우리가 구하고자 하는 변수(label_y)이므로 스케일링 하지 않음
 
 ##3-9. 차원 축소
@@ -164,16 +169,26 @@ pd.plotting.scatter_matrix(df[Temperature_features], alpha=0.8, figsize=(12, 12)
 pd.plotting.scatter_matrix(df[Humidity_features], alpha=0.8, figsize=(12, 12), diagonal='kde')
 pd.plotting.scatter_matrix(df[Winvel_features], alpha=0.8, figsize=(12, 12), diagonal='kde')
 pd.plotting.scatter_matrix(df[Solar_features], alpha=0.8, figsize=(12, 12), diagonal='kde')
-## -> Temperature, Humidity, Winvel, Solar로 나누니까 비선형적, 군집화 등 특별한 규칙이 보이지 않음
+## -> Temperature, Humidity, Winvel, Solar로 나누니까 mean, grad, sd로 나눈 것보다 비선형적이고 군집화가 적어 특별한 규칙이 보이지 않음
 ## 따라서 환경변수 12개를 각각의 mean, grad, sd으로 나누어 차원 축소를 진행하기로 결정 (12개 -> 3개)
-## t-SNE (t-distributed Stochastic Neighbor Embedding)를 활용한 차원축소
+## t-SNE (t-distributed Stochastic Neighbor Embedding)를 활용한 환경변수 차원축소
 from sklearn.manifold import TSNE
 
 
 ## Physiological features(생리학적 변수) 9개
 pd.plotting.scatter_matrix(df[physiological_features], alpha=0.8, figsize=(15, 15), diagonal='kde')
+mean_physiological_features = ['mean.hr_60', 'mean.WristT_60', 'mean.PantT_60']
+grad_physiological_features = ['grad.hr_60', 'grad.WristT_60', 'grad.PantT_60']
+sd_physiological_features = ['sd.hr_60', 'sd.WristT_60', 'sd.PantT_60']
+pd.plotting.scatter_matrix(df[mean_physiological_features], alpha=0.8, figsize=(12, 12), diagonal='kde')
+pd.plotting.scatter_matrix(df[grad_physiological_features], alpha=0.8, figsize=(12, 12), diagonal='kde')
+pd.plotting.scatter_matrix(df[sd_physiological_features], alpha=0.8, figsize=(12, 12), diagonal='kde')
+## -> 생리학적 변수도 환경변수와 같은 성격을 띄어 mean, grad, sd로 나누어 차원 축소를 진행하기로 결정 (9개 -> 3개)
+## t-SNE (t-distributed Stochastic Neighbor Embedding)를 활용한 생리학적 변수 차원축소
+from sklearn.manifold import TSNE
 
 ## 'Vote_time', 'Vote_time_as_number'에서 'Vote_time_as_number'만 사용하기로 결정
+## 2주간의 단기간에는 환경변화가 크지 않으므로 일별 차이(예: 오늘 내일 온도 차이)보다 하루 사이의 시간별 차이(예: 하루 온도차)가 더 크다고 판단했음
 
 '''
 - Environmental features(환경 변수) 12개 -> 3개
