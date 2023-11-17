@@ -42,7 +42,7 @@ df[df.isnull().any(axis=1)][columns_with_missing_values]
     'grad.Temperature_60', 
     'mean.Humidity_60', 
     'grad.Humidity_60',
-->'Temperature', 'Humidity', 'Winvel'은 2주 사이에 큰 차이가 없어 평균값으로 결측치 처리
+->'Temperature', 'Humidity'은 2주 사이에 큰 차이가 없어 평균값으로 결측치 처리
     'mean.Solar_60',
     'grad.Solar_60',
 ->'Solar'는 시간에 영향을 많이 받기에 'Vote_time'에 맞춰서 결측치 처리

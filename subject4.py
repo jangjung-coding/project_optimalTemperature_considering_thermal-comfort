@@ -18,6 +18,7 @@ df = pd.read_csv(path)
 
 #Unnamed: 0열 제거하기(csv파일을 만들 때 생긴 열)
 df = df.drop(df.columns[0], axis=1)
+
 #subject4은 15개의 열과 245개의 행으로 이루어져 있다.
 df.columns.nunique() #15
 total_rows = df.shape[0]
@@ -41,7 +42,7 @@ df[df.isnull().any(axis=1)][columns_with_missing_values]
     'grad.Temperature_60', 
     'mean.Humidity_60', 
     'grad.Humidity_60',
-->'Temperature', 'Humidity', 'Winvel'은 2주 사이에 큰 차이가 없어 평균값으로 결측치 처리
+->'Temperature', 'Humidity'은 2주 사이에 큰 차이가 없어 평균값으로 결측치 처리
     'mean.Solar_60',
     'grad.Solar_60',
 ->'Solar'는 시간에 영향을 많이 받기에 'Vote_time'에 맞춰서 결측치 처리
@@ -111,10 +112,13 @@ from sklearn.preprocessing import MinMaxScaler
 scaler = MinMaxScaler()
 df[environmental_features_include_solar] = scaler.fit_transform(df[environmental_features_include_solar]) #환경변수 0~1 스케일링
 df[physiological_features] = scaler.fit_transform(df[physiological_features]) #생리학적 변수 0~1 스케일링
+## 스케일링 확인
+df[environmental_features_include_solar].describe()
+df[environmental_features_include_solar].boxplot(rot=90, figsize=(10,10))
+## Other features(기타 변수) 3개('ID','Vote_time', 'Vote_time_as_number')는 스케일링 하지 않음
+## 'therm_sens'는 우리가 구하고자 하는 변수(label_y)이므로 스케일링 하지 않음
 ###############################################################################################
 ##3-9. 차원 축소
-## 'therm_sens'를 잘 예측하고 차원의 저주를 피하기 위해 비슷한 성격의 변수들로 새로운 변수를 만들어 차원 축소를 진행하기로 결정
-## Environmental features(환경 변수) 6개
 mean_environmental_features = ['mean.Temperature_60', 'mean.Humidity_60', 'mean.Solar_60']
 grad_environmental_features = ['grad.Temperature_60', 'grad.Humidity_60', 'grad.Solar_60']
 from sklearn.manifold import TSNE
@@ -125,13 +129,11 @@ mean_physiological_features = ['mean.hr_60', 'mean.WristT_60', 'mean.PantT_60']
 grad_physiological_features = ['grad.hr_60', 'grad.WristT_60', 'grad.PantT_60']
 tsne_mean_physiological_features = tsne.fit_transform(df[mean_physiological_features])
 tsne_grad_physiological_features = tsne.fit_transform(df[grad_physiological_features])
-## 편향되지 않은 모델 학습을 위해 tsne로 얻은 6개 피쳐들 minmaxscaler로 스케일링
 scaler = MinMaxScaler()
 tsne_mean_environment_features = scaler.fit_transform(tsne_mean_environment_features)
 tsne_grad_environment_features = scaler.fit_transform(tsne_grad_environment_features)
 tsne_mean_physiological_features = scaler.fit_transform(tsne_mean_physiological_features)
 tsne_grad_physiological_features = scaler.fit_transform(tsne_grad_physiological_features)
-## ID와 측정 시간을 나타내는 'Vote_time'은 string 타입이고 'Vote_time_as_number'는 Solar결측치를 처리하기 위해 만든 임시 변수라 제거 
 ###############################################################################################
 ##3-10. 데이터 전처리 및 분석 마무리
 ##차원 축소, 스케일링 된 피쳐들로 데이터 프레임 만들기
@@ -201,5 +203,3 @@ plt.title('Performance Evaluation')
 plt.legend()
 plt.xlabel('Value')
 plt.show()
-
-

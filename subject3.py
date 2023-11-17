@@ -18,6 +18,7 @@ df = pd.read_csv(path)
 
 #Unnamed: 0열 제거하기(csv파일을 만들 때 생긴 열)
 df = df.drop(df.columns[0], axis=1)
+
 #subject3은 15개의 열과 257개의 행으로 이루어져 있다.
 df.columns.nunique() #15
 total_rows = df.shape[0]
@@ -39,7 +40,7 @@ df[df.isnull().any(axis=1)][columns_with_missing_values]
 결측치 열 9개
     'grad.Temperature_60', 
     'grad.Humidity_60',
-->'Temperature', 'Humidity', 'Winvel'은 2주 사이에 큰 차이가 없어 평균값으로 결측치 처리
+->'Temperature', 'Humidity'은 2주 사이에 큰 차이가 없어 평균값으로 결측치 처리
     'grad.Solar_60',
 ->'Solar'는 시간에 영향을 많이 받기에 'Vote_time'에 맞춰서 결측치 처리
     'mean.hr_60',
@@ -86,7 +87,7 @@ print(df.columns[df.isnull().any()].tolist()) #결측치 없음!!!
 ## 이상치 확인
 df.describe()
 df.boxplot(rot=90, figsize=(10,10))
-## 환경변수('Temperature', 'Humidity', 'Winvel', 'Solar')에 대한 이상치 확인 -> 외부 데이터(기상청)를 가져온 것이므로 이상치 제거하지 않기로 결정
+## 환경변수('Temperature', 'Humidity', 'Solar')에 대한 이상치 확인 -> 외부 데이터(기상청)를 가져온 것이므로 이상치 제거하지 않기로 결정
 environmental_features_include_solar = ['mean.Temperature_60', 'grad.Temperature_60', 'mean.Humidity_60', 'grad.Humidity_60', 'mean.Solar_60', 'grad.Solar_60']
 ## 생리학적 변수 'hr', 'WristT', 'PantT'에 대한 이상치는 순간적인 변화에 의해 생기는 값이므로 개인 therml_sens를 찾는 회귀, 분류 모델이 영향을 많이 줄 것이므로 평균값으로 대체하기로 결정
 physiological_features = ['mean.hr_60', 'grad.hr_60', 'mean.WristT_60', 'grad.WristT_60', 'mean.PantT_60', 'grad.PantT_60']
@@ -99,7 +100,7 @@ df[physiological_features] = df[physiological_features].fillna(df[physiological_
 ## 이상치 최종 확인
 df[physiological_features].boxplot(rot=90, figsize=(10,10)) #이상치 처리 끝!!!
 ###############################################################################################
-##3-8. 피쳐 스케일링(RobustScaler)
+##3-8. 피쳐 스케일링
 ## 차원축소를 위해 minmaxscaler로 데이터 스케일링
 from sklearn.preprocessing import MinMaxScaler
 scaler = MinMaxScaler()
@@ -108,7 +109,7 @@ df[physiological_features] = scaler.fit_transform(df[physiological_features]) #�
 ## 스케일링 확인
 df[environmental_features_include_solar].describe()
 df[environmental_features_include_solar].boxplot(rot=90, figsize=(10,10))
-## Other features(기타 변수) 4개('ID','Vote_time', 'Vote_time_as_number')는 스케일링 하지 않음
+## Other features(기타 변수) 3개('ID','Vote_time', 'Vote_time_as_number')는 스케일링 하지 않음
 ## 'therm_sens'는 우리가 구하고자 하는 변수(label_y)이므로 스케일링 하지 않음
 ###############################################################################################
 ##3-9. 차원축소

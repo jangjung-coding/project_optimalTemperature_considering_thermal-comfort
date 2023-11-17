@@ -50,7 +50,7 @@ df[df.isnull().any(axis=1)][columns_with_missing_values]
     'grad.PantT_60',
 -> 생리학적 변수 'hr', 'WristT', 'PantT'는 비교적 순간적으로 급격한 변화를 띄지 않는 변수로 주변 10개 평균값으로 결측치 처리
 '''
-## -> 'Temperature', 'Humidity', 'Winvel'은 2주 사이에 큰 차이가 없어 평균값으로 결측치 처리
+## -> 'Temperature', 'Humidity'은 2주 사이에 큰 차이가 없어 평균값으로 결측치 처리
 environmental_features = ['grad.Temperature_60','grad.Humidity_60']
 df[environmental_features] = df[environmental_features].fillna(df[environmental_features].mean())
 
@@ -99,7 +99,7 @@ df[physiological_features] = df[physiological_features].fillna(df[physiological_
 ## 이상치 최종 확인
 df[physiological_features].boxplot(rot=90, figsize=(10,10)) #이상치 처리 끝!!!
 ###############################################################################################
-##3-8. 피쳐 스케일링(RobustScaler)
+##3-8. 피쳐 스케일링
 ## 차원축소를 위해 minmaxscaler로 데이터 스케일링
 from sklearn.preprocessing import MinMaxScaler
 scaler = MinMaxScaler()
@@ -108,7 +108,7 @@ df[physiological_features] = scaler.fit_transform(df[physiological_features]) #�
 ## 스케일링 확인
 df[environmental_features_include_solar].describe()
 df[environmental_features_include_solar].boxplot(rot=90, figsize=(10,10))
-## Other features(기타 변수) 4개('ID','Vote_time', 'Vote_time_as_number')는 스케일링 하지 않음
+## Other features(기타 변수) 3개('ID','Vote_time', 'Vote_time_as_number')는 스케일링 하지 않음
 ## 'therm_sens'는 우리가 구하고자 하는 변수(label_y)이므로 스케일링 하지 않음
 ###############################################################################################
 ##3-9. 차원축소

@@ -41,7 +41,7 @@ df[df.isnull().any(axis=1)][columns_with_missing_values]
     'grad.Temperature_60', 
     'mean.Humidity_60', 
     'grad.Humidity_60',
-->'Temperature', 'Humidity', 'Winvel'은 2주 사이에 큰 차이가 없어 평균값으로 결측치 처리
+->'Temperature', 'Humidity'은 2주 사이에 큰 차이가 없어 평균값으로 결측치 처리
     'mean.Solar_60',
     'grad.Solar_60',
 ->'Solar'는 시간에 영향을 많이 받기에 'Vote_time'에 맞춰서 결측치 처리
@@ -88,7 +88,7 @@ print(df.columns[df.isnull().any()].tolist()) #결측치 없음!!!
 ## 이상치 확인
 df.describe()
 df.boxplot(rot=90, figsize=(10,10))
-## 환경변수('Temperature', 'Humidity', 'Winvel', 'Solar')에 대한 이상치 확인 -> 외부 데이터(기상청)를 가져온 것이므로 이상치 제거하지 않기로 결정
+## 환경변수('Temperature', 'Humidity', 'Solar')에 대한 이상치 확인 -> 외부 데이터(기상청)를 가져온 것이므로 이상치 제거하지 않기로 결정
 environmental_features_include_solar = ['mean.Temperature_60', 'grad.Temperature_60', 'mean.Humidity_60', 'grad.Humidity_60', 'mean.Solar_60', 'grad.Solar_60']
 plt.boxplot(df[environmental_features_include_solar])
 ## 생리학적 변수 'hr', 'WristT', 'PantT'에 대한 이상치는 순간적인 변화에 의해 생기는 값이므로 개인 therml_sens를 찾는 회귀, 분류 모델이 영향을 많이 줄 것이므로 평균값으로 대체하기로 결정

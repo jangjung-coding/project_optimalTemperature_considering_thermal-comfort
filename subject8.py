@@ -82,7 +82,7 @@ print(df.columns[df.isnull().any()].tolist()) #결측치 없음!!!
 ## 이상치 확인
 df.describe()
 df.boxplot(rot=90, figsize=(10,10))
-## 환경변수('Temperature', 'Humidity', 'Winvel', 'Solar')에 대한 이상치 확인 -> 외부 데이터(기상청)를 가져온 것이므로 이상치 제거하지 않기로 결정
+## 환경변수('Temperature', 'Humidity', 'Solar')에 대한 이상치 확인 -> 외부 데이터(기상청)를 가져온 것이므로 이상치 제거하지 않기로 결정
 environmental_features_include_solar = ['mean.Temperature_60', 'grad.Temperature_60', 'mean.Humidity_60', 'grad.Humidity_60', 'mean.Solar_60', 'grad.Solar_60']
 plt.boxplot(df[environmental_features_include_solar]) 
 ## 생리학적 변수 'hr', 'WristT', 'PantT'에 대한 이상치는 순간적인 변화에 의해 생기는 값이므로 개인 therml_sens를 찾는 회귀, 분류 모델이 영향을 많이 줄 것이므로 평균값으로 대체하기로 결정
@@ -96,7 +96,7 @@ df[physiological_features] = df[physiological_features].fillna(df[physiological_
 ## 이상치 최종 확인
 df[physiological_features].boxplot(rot=90, figsize=(10,10)) #이상치 처리 끝!!!
 ###############################################################################################
-##3-8. 피쳐 스케일링(RobustScaler)
+##3-8. 피쳐 스케일링
 ## 차원축소를 위해 minmaxscaler로 데이터 스케일링
 from sklearn.preprocessing import MinMaxScaler
 scaler = MinMaxScaler()
@@ -105,7 +105,7 @@ df[physiological_features] = scaler.fit_transform(df[physiological_features]) #�
 ## 스케일링 확인
 df[environmental_features_include_solar].describe()
 df[environmental_features_include_solar].boxplot(rot=90, figsize=(10,10))
-## Other features(기타 변수) 4개('ID','Vote_time', 'Vote_time_as_number')는 스케일링 하지 않음
+## Other features(기타 변수) 3개('ID','Vote_time', 'Vote_time_as_number')는 스케일링 하지 않음
 ## 'therm_sens'는 우리가 구하고자 하는 변수(label_y)이므로 스케일링 하지 않음
 ###############################################################################################
 ##3-9. 차원축소

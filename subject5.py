@@ -18,6 +18,7 @@ df = pd.read_csv(path)
 
 #Unnamed: 0열 제거하기(csv파일을 만들 때 생긴 열)
 df = df.drop(df.columns[0], axis=1)
+
 #subject5은 15개의 열과 217개의 행으로 이루어져 있다.
 df.columns.nunique() #15
 total_rows = df.shape[0]
@@ -41,7 +42,7 @@ df[df.isnull().any(axis=1)][columns_with_missing_values]
     'grad.Temperature_60', 
     'mean.Humidity_60', 
     'grad.Humidity_60',
-->'Temperature', 'Humidity', 'Winvel'은 2주 사이에 큰 차이가 없어 평균값으로 결측치 처리
+->'Temperature', 'Humidity'은 2주 사이에 큰 차이가 없어 평균값으로 결측치 처리
     'mean.Solar_60',
     'grad.Solar_60',
 ->'Solar'는 시간에 영향을 많이 받기에 'Vote_time'에 맞춰서 결측치 처리
@@ -86,7 +87,7 @@ print(df.columns[df.isnull().any()].tolist())
 '''
 df[physiological_features] = df[physiological_features].fillna(df[physiological_features].rolling(window=41, min_periods=1, center=True).mean()) #다시 한번 결측치 처리
 ## 결측치 확인
-print(df.columns[df.isnull().any()].tolist()) #'mean.WristT_60', 'grad.WristT_60', 'sd.WristT_60', 'mean.PantT_60', 'grad.PantT_60', 'sd.PantT_60'에 결측치 있어서 다시 돌림
+print(df.columns[df.isnull().any()].tolist()) #'mean.WristT_60', 'grad.WristT_60', 'mean.PantT_60', 'grad.PantT_60'에 결측치 있어서 다시 돌림
 df[physiological_features] = df[physiological_features].fillna(df[physiological_features].rolling(window=41, min_periods=1, center=True).mean()) #다시 한번 결측치 처리
 df[physiological_features] = df[physiological_features].fillna(df[physiological_features].rolling(window=41, min_periods=1, center=True).mean()) #다시 한번 결측치 처리
 df[physiological_features] = df[physiological_features].fillna(df[physiological_features].rolling(window=41, min_periods=1, center=True).mean()) #다시 한번 결측치 처리
@@ -110,7 +111,7 @@ df[physiological_features] = df[physiological_features].fillna(df[physiological_
 ## 이상치 최종 확인
 df[physiological_features].boxplot(rot=90, figsize=(10,10)) #이상치 처리 끝!!!
 ###############################################################################################
-##3-8. 피쳐 스케일링(RobustScaler)
+##3-8. 피쳐 스케일링
 ## 차원축소를 위해 minmaxscaler로 데이터 스케일링
 from sklearn.preprocessing import MinMaxScaler
 scaler = MinMaxScaler()
@@ -119,7 +120,7 @@ df[physiological_features] = scaler.fit_transform(df[physiological_features]) #�
 ## 스케일링 확인
 df[environmental_features_include_solar].describe()
 df[environmental_features_include_solar].boxplot(rot=90, figsize=(10,10))
-## Other features(기타 변수) 4개('ID','Vote_time', 'Vote_time_as_number')는 스케일링 하지 않음
+## Other features(기타 변수) 3개('ID','Vote_time', 'Vote_time_as_number')는 스케일링 하지 않음
 ## 'therm_sens'는 우리가 구하고자 하는 변수(label_y)이므로 스케일링 하지 않음
 ###############################################################################################
 ##3-9. 차원축소
