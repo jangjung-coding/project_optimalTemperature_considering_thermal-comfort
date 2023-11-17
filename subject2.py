@@ -18,8 +18,8 @@ df = pd.read_csv(path)
 
 #Unnamed: 0열 제거하기(csv파일을 만들 때 생긴 열)
 df = df.drop(df.columns[0], axis=1)
-#subject2은 30개의 열과 229개의 행으로 이루어져 있다.
-df.columns.nunique() #30
+#subject2은 24개의 열과 229개의 행으로 이루어져 있다.
+df.columns.nunique() #24
 total_rows = df.shape[0]
 total_rows #229
 #################################
@@ -114,8 +114,32 @@ df[physiological_features] = df[physiological_features].fillna(df[physiological_
 ## 이상치 최종 확인
 df[physiological_features].boxplot(rot=90, figsize=(10,10)) #이상치 처리 끝!!!
 
-##3-8. 피쳐 엔지니어링(단위와 타입 조정)
-##3-9. 피쳐 스케일링
+##3-8. 피쳐 스케일링(RobustScaler)
+## RobustScaler를 사용하면 모든 변수들이 같은 스케일을 갖게 되며, StandardScaler에 비해 스케일링 결과가 더 넓은 범위로 분포하게 됨
+## 따라서 StandardScaler에 비해 이상치의 영향이 적어진다는 장점이 있는데 이는 모델의 과대적합을 방지하고 이상치 제거를 최소화한 앞선 작업과도 연결됨(줄102에서 이상치 제거를 최소화 했어서 RobustScaler를 사용하기로 결정)
+from sklearn.preprocessing import RobustScaler
+scaler = RobustScaler()
+df[environmental_features_include_solar] = scaler.fit_transform(df[environmental_features_include_solar]) #환경변수 스케일링
+df[physiological_features] = scaler.fit_transform(df[physiological_features]) #생리학적 변수 스케일링
+## 스케일링 확인
+df[environmental_features_include_solar].describe()
+df[environmental_features_include_solar].boxplot(rot=90, figsize=(10,10))
+df[physiological_features].describe()
+df[physiological_features].boxplot(rot=90, figsize=(10,10))
+## -> 차원축소를 위해 minmaxscaler로 데이터 스케일링
+from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler()
+df[environmental_features_include_solar] = scaler.fit_transform(df[environmental_features_include_solar]) #환경변수 0~1 스케일링
+df[physiological_features] = scaler.fit_transform(df[physiological_features]) #생리학적 변수 0~1 스케일링
+## 스케일링 확인
+df[environmental_features_include_solar].describe()
+df[environmental_features_include_solar].boxplot(rot=90, figsize=(10,10))
+df[physiological_features].describe()
+df[physiological_features].boxplot(rot=90, figsize=(10,10))
+## Other features(기타 변수) 4개('ID','Vote_time', 'Vote_time_as_number')는 스케일링 하지 않음
+## 'therm_sens'는 우리가 구하고자 하는 변수(label_y)이므로 스케일링 하지 않음
+
+##3-9. 차원축소
 ##3-10. 데이터 전처리 및 분석 마무리
 
 #################################

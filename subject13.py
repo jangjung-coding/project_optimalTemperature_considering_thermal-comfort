@@ -18,8 +18,8 @@ df = pd.read_csv(path)
 
 #Unnamed: 0열 제거하기(csv파일을 만들 때 생긴 열)
 df = df.drop(df.columns[0], axis=1)
-#subject13은 30개의 열과 189개의 행으로 이루어져 있다.
-df.columns.nunique() #30
+#subject13은 24개의 열과 189개의 행으로 이루어져 있다.
+df.columns.nunique() #24
 total_rows = df.shape[0]
 total_rows #189
 #################################
