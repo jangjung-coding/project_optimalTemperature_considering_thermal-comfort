@@ -109,10 +109,10 @@ df[environmental_features_include_solar].boxplot(rot=90, figsize=(10,10))
 ## 'therm_sens'는 우리가 구하고자 하는 변수(label_y)이므로 스케일링 하지 않음
 ###############################################################################################
 ##3-9. 차원축소
-mean_environmental_features = ['mean.Temperature_60', 'mean.Humidity_60', 'mean.Solar_60']
-grad_environmental_features = ['grad.Temperature_60', 'grad.Humidity_60', 'grad.Solar_60']
 from sklearn.manifold import TSNE
 tsne = TSNE(n_components=1, random_state=0)
+mean_environmental_features = ['mean.Temperature_60', 'mean.Humidity_60', 'mean.Solar_60']
+grad_environmental_features = ['grad.Temperature_60', 'grad.Humidity_60', 'grad.Solar_60']
 tsne_mean_environment_features = tsne.fit_transform(df[mean_environmental_features])
 tsne_grad_environment_features = tsne.fit_transform(df[grad_environmental_features])
 mean_physiological_features = ['mean.hr_60', 'mean.WristT_60', 'mean.PantT_60']
@@ -192,4 +192,34 @@ plt.yticks(y + 0.2, name, fontsize=10)
 plt.title('Performance Evaluation')
 plt.legend()
 plt.xlabel('Value')
+plt.show()
+#################################
+## Vote time에 따른 Solar Energy 시각화 업데이트
+sns.set(style="whitegrid", font_scale=1.2)
+plt.figure(figsize=(12, 8))
+colors = sns.color_palette("viridis", as_cmap=True)
+scatter_plot = sns.scatterplot(x=df['Vote_time_as_number'], y=df['mean.Solar_60'], alpha=0.4, color='red', s=100)
+scatter_plot.set_path_effects([plt.matplotlib.patheffects.withStroke(linewidth=2, foreground='black')])
+plt.title('Solar Energy vs. Voting Time', fontsize=18, fontweight='bold')
+plt.xlabel('Vote Time as Number', fontsize=14, fontweight='bold')
+plt.ylabel('Mean Solar 60', fontsize=14, fontweight='bold')
+plt.grid(True, linestyle='--', alpha=0.5)
+plt.gca().set_facecolor('#f7f7f7')
+plt.xticks(rotation=45, ha='right')
+plt.legend(['Solar Energy'], loc='upper right')
+sns.despine()
+sns.set_theme()
+plt.show()
+###################################################
+## TSNE 시각화 업데이트
+sns.set(style="whitegrid", font_scale=1.2)
+plt.figure(figsize=(12, 8))
+plt.plot(tsne_mean_environment_features, label='Mean Environmental Features', marker='o', linestyle='-', color='blue')
+plt.plot(tsne_grad_environment_features, label='Gradient Environmental Features', marker='o', linestyle='-', color='green')
+plt.plot(tsne_mean_physiological_features, label='Mean Physiological Features', marker='o', linestyle='-', color='orange')
+plt.plot(tsne_grad_physiological_features, label='Gradient Physiological Features', marker='o', linestyle='-', color='red')
+plt.xlabel('Data Points')
+plt.ylabel('TSNE Dimension 1')
+plt.title('TSNE Visualization of Different Feature Sets')
+plt.legend()
 plt.show()

@@ -63,7 +63,7 @@ df[environmental_features] = df[environmental_features].fillna(df[environmental_
 ## 예를 들어, 하루를 1440이라고 보면 오전 9시는 540, 15시(오후3시)는 900이 된다
 df['Vote_time_as_number'] = pd.to_datetime(df['Vote_time'], format='%m/%d/%Y %H:%M').dt.hour * 60 + pd.to_datetime(df['Vote_time'], format='%m/%d/%Y %H:%M').dt.minute
 
-plt.scatter(x=df[ 'Vote_time_as_number'], y=df['mean.Solar_60'], alpha=0.7) #그림을 보면 600~1000 즉, 10시~17시 해가 떠있을때 Solar가 큰것을 볼 수 있음 
+plt.scatter(x=df['Vote_time_as_number'], y=df['mean.Solar_60'], alpha=0.7) #그림을 보면 600~1000 즉, 10시~17시 해가 떠있을때 Solar가 큰것을 볼 수 있음 
 plt.xlabel('Vote_time_as_number')
 plt.ylabel('mean.Solar_60')
 plt.show()
@@ -273,10 +273,10 @@ plt.show()
 ###############################################################################################
 ##4-4. 모델 선정
 ## SHAP을 통해 피쳐를 바꾼 여러 환경에서 모두 성능이 우수하게 나온 Random Forest를 선정
-import shap 
-explainer = shap.TreeExplainer(model_LinearRegression)
+import shap
+explainer = shap.TreeExplainer(model_RandomForestRegressor)
 shap_values = explainer.shap_values(X_test)
-shap.summary_plot(shap_values, X_test)
+shap.summary_plot(shap_values, X_test, plot_type="bar")
 
 df_subject1_1 = pd.DataFrame({
     'grad_environmental_features': tsne_grad_environment_features.flatten(),
@@ -306,8 +306,27 @@ df_subject1_3 = pd.DataFrame({
 X = df_subject1_3.iloc[:, :2]
 y = df_subject1_3.iloc[:, 2]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
-## -> df_subject1_1환경(학습 변수 3개)에서 Random Forest모델이 가장 성능이 좋음!!! 
-
-
-
-
+## -> shap을 통해 피쳐를 바꿔가면서 보니 df_subject1_1환경(학습 변수 3개)에서 Random Forest 모델이 가장 성능이 좋음!!!
+###############################################################################################
+## 모델 벤치마킹 시각화 업데이트
+rmse = [rmse_model_LinearRegression, rmse_model_svm, rmse_model_DecisionTreeRegressor, rmse_model_RandomForestRegressor, rmse_model_MLPRegressor]
+mae = [mae_model_LinearRegression, mae_model_svm, mae_model_DecisionTreeRegressor, mae_model_RandomForestRegressor, mae_model_MLPRegressor]
+name = ['LinearRegression', 'SVM', 'DecisionTreeRegressor', 'RandomForestRegressor', 'MLPRegressor']
+plt.figure(figsize=(12, 8))
+gap = 0
+bar_width = 0.35
+plt.barh(y, mae, height=bar_width, label='MAE', color='darkorange', alpha=1)
+plt.barh(y + bar_width, rmse, height=bar_width, label='RMSE', color='darkviolet', alpha=1)
+for i, v in enumerate(mae):
+    plt.text(v + 0.01, i, f'{v:.3f}', color='black', va='center', fontweight='bold')
+for i, v in enumerate(rmse):
+    plt.text(v + 0.01, i + bar_width, f'{v:.3f}', color='black', va='center', fontweight='bold')
+for i in range(len(mae) - 1):
+    plt.plot([mae[i], mae[i + 1]], [y[i] + bar_width / 16, y[i + 1] + bar_width / 16], 'o-', color='orangered', alpha=0.6)
+for i in range(len(rmse) - 1):
+    plt.plot([rmse[i], rmse[i + 1]], [y[i] + bar_width/2 + gap + bar_width / 2, y[i + 1] + bar_width /2 + gap + bar_width / 2], 'o-', color='darkmagenta', alpha=1)    
+plt.yticks(y + bar_width / 2, name, fontsize=20, fontweight='semibold')
+plt.title('Performance Evaluation', fontsize=20)
+plt.xlabel('Error Value', fontsize=20)
+plt.legend(loc='lower right', fontsize=14)
+plt.show()
