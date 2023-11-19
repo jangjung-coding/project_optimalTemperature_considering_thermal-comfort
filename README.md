@@ -1,2 +1,2 @@
 # Thermal-Comfort
-Finding personal thermal confort
+Finding personal thermal comfort with smart watch
