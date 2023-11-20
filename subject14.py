@@ -198,3 +198,4 @@ plt.title('Performance Evaluation')
 plt.legend()
 plt.xlabel('Value')
 plt.show()
+############################### 14명의 실험자 분석 끝 ##########################################
